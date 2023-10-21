@@ -1,78 +1,71 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { Route, Routes } from 'react-router-dom';
+import { GlobalStyle, SectionContainer } from './GlobalStyle';
+import { Navigation } from './Navigation/Navigation';
+import { lazy, useEffect } from 'react';
+import { UserMenu } from './UserMenu/UserMenu';
+import NavigationPage from './pages/NavigationPage/NavigationPage';
+import { useDispatch } from 'react-redux';
+import { fetchCurentUser } from 'redux/auth/authOperations';
+import { PrivateRoute } from './PrivateRoute';
+import { RestrictedRoute } from './RestrictedRoute';
 
-import { Navigate, Route, Routes } from 'react-router-dom';
-import Layout from './layout/Layout';
-import Home from '../pages/home/Home';
-import Contacts from '../pages/contact/Contact';
-import Registration from '../pages/registration/Registration';
-import Login from '../pages/login/Login';
-import { GlobalStyle } from './GlobalStyled';
-import ModalChangeContact from '../pages/modalChange/ModalChangeContact';
-import PublicRoute from 'guards/PublicRoute';
-import PrivateRoute from 'guards/PrivateRoute';
+const RegisterPage = lazy(() => import('./pages/RegisterPage/RegisterPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage/LoginPage'));
+const ContactsPage = lazy(() => import('./pages/ContactsPage/ContactsPage'));
 
-import { refreshUserThunk } from 'redux/auth/thunk';
-import { ToastContainer } from 'react-toastify';
-import { selectorIsRefreshing } from 'redux/auth/selectors';
-
-const App = () => {
+export const App = () => {
   const dispatch = useDispatch();
-  const isRefreshin = useSelector(selectorIsRefreshing);
+
   useEffect(() => {
-    dispatch(refreshUserThunk());
+    dispatch(fetchCurentUser());
   }, [dispatch]);
 
-  return isRefreshin ? (
-    <b>Refreshing user ...</b>
-  ) : (
-    <>
-      <GlobalStyle />
+  return (
+    <SectionContainer>
       <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
+        <Route path="/" element={<Navigation />}>
+          <Route index element={<NavigationPage />}></Route>
+
           <Route
-            path="/contacts"
+            path="register"
             element={
-              <PrivateRoute>
-                <Contacts />
-              </PrivateRoute>
+              <RestrictedRoute
+                redirectTo="/UserMenu"
+                component={<RegisterPage />}
+              />
             }
           />
+
           <Route
-            path="/registration"
+            path="login"
             element={
-              <PublicRoute>
-                <Registration />
-              </PublicRoute>
+              <RestrictedRoute
+                redirectTo="/UserMenu"
+                component={<LoginPage />}
+              />
             }
           />
+
           <Route
-            path="/login"
+            path="contacts"
             element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
+              <PrivateRoute
+                redirectTo="/contacts"
+                component={<ContactsPage />}
+              />
             }
           />
-          <Route path="*" element={<Navigate to="/" />} />
+
+          <Route
+            path="UserMenu"
+            element={
+              <PrivateRoute redirectTo="/login" component={<UserMenu />} />
+            }
+          />
         </Route>
       </Routes>
-      <ModalChangeContact />
-      <ToastContainer
-        position="bottom-right"
-        autoClose={1500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </>
+
+      <GlobalStyle />
+    </SectionContainer>
   );
 };
-
-export { App };
