@@ -3,7 +3,7 @@ import { GlobalStyle, SectionContainer } from './GlobalStyle';
 import { Navigation } from './Navigation/Navigation';
 import { lazy, useEffect } from 'react';
 import { UserMenu } from './UserMenu/UserMenu';
-import NavigationPage from '../pages/NavigationPage/NavigationPage';
+import NavigationPage from './pages/NavigationPage/NavigationPage';
 import { useDispatch } from 'react-redux';
 import { fetchCurentUser } from 'redux/auth/authOperations';
 import { PrivateRoute } from './PrivateRoute';
